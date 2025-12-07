@@ -1,0 +1,151 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: "18.x"
+  APP_NAME_STAGING: smartinventory-staging
+  APP_NAME_PROD: smartinventory-prod
+
+jobs:
+  ci:
+    name: Build, Lint, Test, Scan
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Lint backend
+        working-directory: server
+        run: npm run lint
+
+      - name: Test backend
+        working-directory: server
+        run: npm test
+
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: client
+        run: npm run lint
+
+      - name: Test frontend (unit)
+        working-directory: client
+        run: npm test
+        
+      - name: E2E tests
+        working-directory: client
+        run: npm run test:e2e
+
+      - name: npm audit backend
+        working-directory: server
+        run: npm audit --production || true
+
+      - name: npm audit frontend
+        working-directory: client
+        run: npm audit --production || true
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.app_url || '' }}
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Build frontend
+        working-directory: client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build backend
+        working-directory: server
+        run: |
+          npm ci
+          npm run build || echo "No backend build step defined"
+
+      # ====== PLACEHOLDER FOR DEPLOY TIL STAGING ======
+      # Her bytter du senere til:
+      # - ghcr push / docker push
+      # - kubectl apply
+      # - az webapp deploy
+      # etc.
+      - name: Deploy to staging (placeholder)
+        id: deploy
+        run: |
+          echo "Deploying to staging environment..."
+          # TODO: add real deploy command
+          echo "app_url=https://staging.your-domain.com" >> $GITHUB_OUTPUT
+
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.app_url || '' }}
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Build frontend
+        working-directory: client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build backend
+        working-directory: server
+        run: |
+          npm ci
+          npm run build || echo "No backend build step defined"
+
+      - name: Deploy to production (placeholder)
+        id: deploy
+        run: |
+          echo "Deploying to production environment..."
+          # TODO: add real deploy command
+          echo "app_url=https://app.your-domain.com" >> $GITHUB_OUTPUT
