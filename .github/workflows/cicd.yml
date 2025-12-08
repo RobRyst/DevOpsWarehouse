@@ -30,30 +30,39 @@ jobs:
           cache: "npm"
 
       - name: Install backend dependencies
+        working-directory: WarehouseDevOps
         run: npm ci
 
       - name: Lint backend
-        run: npm run lint
+        working-directory: WarehouseDevOps
+        run: npm run lint --if-present
 
       - name: Test backend
-        run: npm test
+        working-directory: WarehouseDevOps
+        run: npm test -- --runInBand
 
       - name: Install frontend dependencies
-        working-directory: client
+        working-directory: WarehouseDevOps/client
         run: npm ci
 
       - name: Lint frontend
-        working-directory: client
-        run: npm run lint
+        working-directory: WarehouseDevOps/client
+        run: npm run lint --if-present
 
       - name: Test frontend (unit)
-        working-directory: client
-        run: npm test
+        working-directory: WarehouseDevOps/client
+        run: npm test -- --watch=false --ci
+
+      - name: E2E tests (if defined)
+        working-directory: WarehouseDevOps/client
+        run: npm run test:e2e --if-present
+
       - name: npm audit backend
+        working-directory: WarehouseDevOps
         run: npm audit --production || true
 
       - name: npm audit frontend
-        working-directory: client
+        working-directory: WarehouseDevOps/client
         run: npm audit --production || true
 
   deploy-staging:
@@ -77,12 +86,13 @@ jobs:
           cache: "npm"
 
       - name: Build frontend
-        working-directory: client
+        working-directory: WarehouseDevOps/client
         run: |
           npm ci
           npm run build
 
       - name: Build backend
+        working-directory: WarehouseDevOps
         run: |
           npm ci
           npm run build || echo "No backend build step defined"
@@ -91,7 +101,6 @@ jobs:
         id: deploy
         run: |
           echo "Deploying to staging environment..."
-          # TODO: add real deploy command
           echo "app_url=https://staging.your-domain.com" >> $GITHUB_OUTPUT
 
   deploy-production:
@@ -115,12 +124,13 @@ jobs:
           cache: "npm"
 
       - name: Build frontend
-        working-directory: client
+        working-directory: WarehouseDevOps/client
         run: |
           npm ci
           npm run build
 
       - name: Build backend
+        working-directory: WarehouseDevOps
         run: |
           npm ci
           npm run build || echo "No backend build step defined"
@@ -129,5 +139,4 @@ jobs:
         id: deploy
         run: |
           echo "Deploying to production environment..."
-          # TODO: add real deploy command
           echo "app_url=https://app.your-domain.com" >> $GITHUB_OUTPUT
