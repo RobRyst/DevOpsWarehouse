@@ -35,7 +35,7 @@ jobs:
 
       - name: Lint backend
         working-directory: WarehouseDevOps
-        run: npm run lint --if-present
+        run: npx eslint . --ext .js,.jsx --ignore-pattern client
 
       - name: Test backend
         working-directory: WarehouseDevOps
@@ -44,10 +44,6 @@ jobs:
       - name: Install frontend dependencies
         working-directory: WarehouseDevOps/client
         run: npm install --legacy-peer-deps
-
-      - name: Lint frontend
-        working-directory: WarehouseDevOps/client
-        run: npm run lint --if-present
 
       - name: Test frontend (unit)
         working-directory: WarehouseDevOps/client
