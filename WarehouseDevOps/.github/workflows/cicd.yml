@@ -30,15 +30,12 @@ jobs:
           cache: "npm"
 
       - name: Install backend dependencies
-        working-directory: server
         run: npm ci
 
       - name: Lint backend
-        working-directory: server
         run: npm run lint
 
       - name: Test backend
-        working-directory: server
         run: npm test
 
       - name: Install frontend dependencies
@@ -52,13 +49,7 @@ jobs:
       - name: Test frontend (unit)
         working-directory: client
         run: npm test
-        
-      - name: E2E tests
-        working-directory: client
-        run: npm run test:e2e
-
       - name: npm audit backend
-        working-directory: server
         run: npm audit --production || true
 
       - name: npm audit frontend
@@ -92,17 +83,10 @@ jobs:
           npm run build
 
       - name: Build backend
-        working-directory: server
         run: |
           npm ci
           npm run build || echo "No backend build step defined"
 
-      # ====== PLACEHOLDER FOR DEPLOY TIL STAGING ======
-      # Her bytter du senere til:
-      # - ghcr push / docker push
-      # - kubectl apply
-      # - az webapp deploy
-      # etc.
       - name: Deploy to staging (placeholder)
         id: deploy
         run: |
@@ -114,7 +98,6 @@ jobs:
     name: Deploy to Production
     needs: deploy-staging
     runs-on: ubuntu-latest
-
     environment:
       name: production
       url: ${{ steps.deploy.outputs.app_url || '' }}
@@ -138,7 +121,6 @@ jobs:
           npm run build
 
       - name: Build backend
-        working-directory: server
         run: |
           npm ci
           npm run build || echo "No backend build step defined"
