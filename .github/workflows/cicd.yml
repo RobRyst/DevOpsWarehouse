@@ -31,7 +31,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: WarehouseDevOps
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Lint backend
         working-directory: WarehouseDevOps
@@ -43,7 +43,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: WarehouseDevOps/client
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Lint frontend
         working-directory: WarehouseDevOps/client
@@ -88,13 +88,13 @@ jobs:
       - name: Build frontend
         working-directory: WarehouseDevOps/client
         run: |
-          npm ci
+          npm install --legacy-peer-deps
           npm run build
 
       - name: Build backend
         working-directory: WarehouseDevOps
         run: |
-          npm ci
+          npm install --legacy-peer-deps
           npm run build || echo "No backend build step defined"
 
       - name: Deploy to staging (placeholder)
@@ -126,13 +126,13 @@ jobs:
       - name: Build frontend
         working-directory: WarehouseDevOps/client
         run: |
-          npm ci
+          npm install --legacy-peer-deps
           npm run build
 
       - name: Build backend
         working-directory: WarehouseDevOps
         run: |
-          npm ci
+          npm install --legacy-peer-deps
           npm run build || echo "No backend build step defined"
 
       - name: Deploy to production (placeholder)
