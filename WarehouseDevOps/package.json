@@ -9,12 +9,20 @@
   },
   "scripts": {
     "client-install": "npm install --prefix client",
+    "client-build": "npm run build --prefix client",
+    "client-test": "npm test --prefix client -- --watch=false --ci",
+
     "start": "node server.js",
     "server": "nodemon server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
+
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client",
-    "test": "jest",
+
+    "lint": "eslint . --ext .js,.jsx",
+    "test": "jest --runInBand",
+    "test:ci": "npm test",
+
     "next-dev": "next dev next-app"
   },
   "author": "",
