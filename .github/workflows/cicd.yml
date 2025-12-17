@@ -1,0 +1,139 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: "18.x"
+  APP_NAME_STAGING: smartinventory-staging
+  APP_NAME_PROD: smartinventory-prod
+
+jobs:
+  ci:
+    name: Build, Lint, Test, Scan
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install backend dependencies
+        working-directory: WarehouseDevOps
+        run: npm install --legacy-peer-deps
+
+      - name: Lint backend (non-blocking)
+        working-directory: WarehouseDevOps
+        continue-on-error: true
+        run: npx eslint . --ext .js,.jsx --ignore-pattern client || echo "Lint errors (ignored in CI)"
+
+      - name: Test backend
+        working-directory: WarehouseDevOps
+        run: npm test -- --runInBand
+
+      - name: Install frontend dependencies
+        working-directory: WarehouseDevOps/client
+        run: npm install --legacy-peer-deps
+
+      - name: Test frontend (unit)
+        working-directory: WarehouseDevOps/client
+        run: npm test -- --watch=false --ci
+
+      - name: E2E tests (if defined)
+        working-directory: WarehouseDevOps/client
+        run: npm run test:e2e --if-present
+
+      - name: npm audit backend
+        working-directory: WarehouseDevOps
+        run: npm audit --production || true
+
+      - name: npm audit frontend
+        working-directory: WarehouseDevOps/client
+        run: npm audit --production || true
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.app_url || '' }}
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Build frontend
+        working-directory: WarehouseDevOps/client
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Build backend
+        working-directory: WarehouseDevOps
+        run: |
+          npm install --legacy-peer-deps
+          npm run build || echo "No backend build step defined"
+
+      - name: Deploy to staging (placeholder)
+        id: deploy
+        run: |
+          echo "Deploying to staging environment..."
+          echo "app_url=https://staging.your-domain.com" >> $GITHUB_OUTPUT
+
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.app_url || '' }}
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Build frontend
+        working-directory: WarehouseDevOps/client
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Build backend
+        working-directory: WarehouseDevOps
+        run: |
+          npm install --legacy-peer-deps
+          npm run build || echo "No backend build step defined"
+
+      - name: Deploy to production (placeholder)
+        id: deploy
+        run: |
+          echo "Deploying to production environment..."
+          echo "app_url=https://app.your-domain.com" >> $GITHUB_OUTPUT

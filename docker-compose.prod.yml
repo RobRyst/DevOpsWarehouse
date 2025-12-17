@@ -1,0 +1,36 @@
+services:
+  mongo:
+    image: mongo:6
+    container_name: smartinventory-mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./WarehouseDevOps
+      dockerfile: Dockerfile
+    container_name: smartinventory-backend
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/smartinventory
+      SECRET_OR_KEY: prod-secret
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./WarehouseDevOps/client
+      dockerfile: Dockerfile
+    container_name: smartinventory-frontend
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
