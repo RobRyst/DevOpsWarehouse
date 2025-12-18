@@ -19,7 +19,7 @@ module "aks" {
   aks_name   = "aks-smartinv-dev"
   subnet_id  = module.network.aks_subnet_id
   node_count = 2
-  vm_size    = "Standard_B2s"
+  vm_size    = "Standard_B2s_v2"
 }
 
 module "database" {
