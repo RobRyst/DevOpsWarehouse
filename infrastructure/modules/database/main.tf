@@ -1,6 +1,6 @@
 resource "azurerm_cosmosdb_account" "this" {
   name                = var.cosmos_name
-  location            = var.location
+  location            = "northeurope"
   resource_group_name = var.rg_name
   offer_type          = "Standard"
   kind                = "MongoDB"
