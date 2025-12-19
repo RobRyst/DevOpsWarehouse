@@ -13,10 +13,10 @@ resource "azurerm_cosmosdb_account" "this" {
     consistency_level = "Session"
   }
 
-  geo_location {
-    location          = var.location
-    failover_priority = 0
-  }
+geo_location {
+  location          = var.location
+  failover_priority = 0
+}
 
   public_network_access_enabled = true
 }
