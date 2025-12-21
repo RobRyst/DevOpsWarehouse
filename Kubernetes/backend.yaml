@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartinv-backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: smartinv-backend
+  template:
+    metadata:
+      labels:
+        app: smartinv-backend
+    spec:
+      containers:
+        - name: backend
+          image: acrsmartinventorydevops.azurecr.io
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartinv-backend
+spec:
+  selector:
+    app: smartinv-backend
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000
