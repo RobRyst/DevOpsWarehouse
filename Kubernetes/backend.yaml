@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: acrsmartinventorydevops.azurecr.io
+          image: acrsmartinventorydevops.azurecr.io/smartinv-backend:2
           ports:
             - containerPort: 5000
           env:

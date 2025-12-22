@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: acrsmartinventorydevops.azurecr.io
+          image: acrsmartinventorydevops.azurecr.io/smartinv-frontend:1
           ports:
             - containerPort: 80
           readinessProbe:
