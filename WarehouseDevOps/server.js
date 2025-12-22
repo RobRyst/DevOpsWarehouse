@@ -42,9 +42,7 @@ app.use('/api/picker', pickerRoutes);
 app.use('/api/user', userRoutes);
 app.use('/webs/item', webScrapingRoutes);
 
-// Serve static assets in production
 if (process.env.NODE_ENV === 'production') {
-  // Set static folder
   app.use(express.static('client/build'));
 
   app.get('*', (req, res) => {
@@ -57,3 +55,9 @@ app.listen(process.env.PORT, () =>
 );
 
 app.get('/health', (req, res) => res.status(200).send('ok'));
+
+app.get('/burn', (req, res) => {
+  const end = Date.now() + 200;
+  while (Date.now() < end) {}
+  res.status(200).send('burn');
+});

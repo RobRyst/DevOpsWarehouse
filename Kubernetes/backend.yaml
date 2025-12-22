@@ -25,6 +25,11 @@ spec:
           env:
             - name: PORT
               value: "5000"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: smartinv-secrets
+                  key: MONGO_URI
           readinessProbe:
             httpGet:
               path: /health
