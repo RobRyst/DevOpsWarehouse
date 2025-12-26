@@ -30,6 +30,11 @@ spec:
                 secretKeyRef:
                   name: smartinv-secrets
                   key: MONGO_URI
+            - name: SECRET_OR_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: smartinv-jwt
+                  key: SECRET_OR_KEY
           readinessProbe:
             httpGet:
               path: /health

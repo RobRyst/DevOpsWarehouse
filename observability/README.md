@@ -1,137 +1,187 @@
-# Observability – Centralized Logging (AKS)
+SmartInventory – DevOps & Observability (AKS)
 
-## Scope
+This project demonstrates DevOps and Kubernetes operational competence using Azure Kubernetes Service (AKS).
+Application correctness is secondary; infrastructure, deployment strategy, observability, and operational behavior are the focus.
 
-This project implements **centralized logging** for the SmartInventory application running on **Azure Kubernetes Service (AKS)**.
+Observability
 
-The objective is to aggregate application and platform logs from all pods and replicas into a **single, queryable location** to support operational troubleshooting during rolling deployments and autoscaling scenarios.
+The project implements three core observability pillars:
 
----
+Centralized logging
 
-## Implementation Overview
+Metrics & dashboards
 
-- **Platform:** Azure Kubernetes Service (AKS)
-- **Logging solution:** AKS Container Insights → Azure Log Analytics
-- **Log source:** Container stdout / stderr + Kubernetes metadata
-- **Workspace:** `law-smartinv-dev`
-- **AKS cluster:** `aks-smartinv-dev`
-- **Resource group:** `rg-smartinv-dev`
+Alerts for failures and downtime
 
-The AKS monitoring add-on (`monitoring`) is enabled and connected to the Log Analytics workspace.  
-Azure Monitor Agent (AMA) pods are running in the `kube-system` namespace and continuously forward logs from all nodes and containers.
+All observability components use Azure-native tooling.
 
----
+1. Centralized Logging (AKS → Log Analytics)
+   Goal
 
-## What Is Collected
+Aggregate logs from all containers and replicas into a single, searchable location to support troubleshooting during rolling deployments and autoscaling.
 
-- Application logs from all containers (stdout / stderr)
-- Logs from all replicas across rolling deployments
-- Kubernetes metadata (namespace, pod name, container name)
-- Pod lifecycle context (startup, restarts, crashes)
+Implementation
 
-Logs are stored in the **`ContainerLogV2`** table.
+Platform: Azure Kubernetes Service (AKS)
 
----
+Logging: AKS Container Insights
 
-## Validation / Incident Walkthrough
+Workspace: law-smartinv-dev
 
-Centralized logging was validated using a real runtime failure during deployment.
+Cluster: aks-smartinv-dev
 
-### Observed symptoms
+Resource Group: rg-smartinv-dev
 
-- Backend pods (`smartinv-backend-*`) repeatedly emitted:
-  - `MongoError: Invalid key`
-  - Database configuration errors
-- One replica entered `CrashLoopBackOff` during a rolling deployment
-- Deployment rollout stalled due to `maxUnavailable: 0`
+Log Table: ContainerLogV2
 
-### Investigation (using centralized logging)
+Azure Monitor Agent (AMA) runs in the kube-system namespace and forwards container stdout/stderr logs automatically.
 
-- Errors were identified exclusively via **Log Analytics**, without direct pod access
-- Log queries revealed:
-  - Authentication failures against Cosmos DB (Mongo API)
-  - Misconfigured MongoDB connection string
-  - Missing and later malformed database name in the connection URI
+What Is Collected
 
-### Resolution
+Application logs from all backend and frontend containers
 
-- Kubernetes secret was updated with the **official Cosmos MongoDB connection string**
-- A valid database name (`/smartinventory`) was added to the URI
-- Deployment was restarted and completed successfully
-- Backend pods stabilized with logs showing:
-  - `***mongodb connected`
-  - No further crash loops or authentication errors
+Logs across all replicas
 
-This incident demonstrates how centralized logging enables **root-cause analysis across replicas and deployments** in a production-like environment.
+Kubernetes metadata (namespace, pod name, container name)
 
----
+Pod lifecycle events (startup, restart, crash)
 
-## How to Query Logs
+Verification
 
-Go to **Azure Portal → Log Analytics workspace → Logs**  
-Use the queries stored in the `kql/` folder.
+Centralized logging was verified during a real backend failure:
 
-### Example: latest backend logs
+Backend pods emitted MongoError: Invalid key
 
-````kusto
+One replica entered CrashLoopBackOff
+
+Logs were visible centrally in Log Analytics without using kubectl logs
+
+Example Diagnostic Queries
 ContainerLogV2
 | where PodName startswith "smartinv-backend"
-| project TimeGenerated, PodNamespace, PodName, ContainerName, LogSource, LogMessage
+| project TimeGenerated, PodName, ContainerName, LogMessage
 | order by TimeGenerated desc
-Example: database-related errors
-kusto
-Copy code
+
 ContainerLogV2
 | where PodName startswith "smartinv-backend"
 | where LogMessage has "MongoError"
 | order by TimeGenerated desc
+
 Operational Value
-Eliminates reliance on kubectl logs for multi-replica workloads
 
-Supports troubleshooting during rolling deployments and autoscaling
+Troubleshooting without pod-level access
 
-Enables correlation of errors across time, pods, and replicas
+Works with rolling deployments and autoscaling
 
-Provides a foundation for:
+Enables root-cause analysis across replicas
 
-log-based alerting
+2. Metrics & Dashboards (Azure Monitor / AKS Insights)
+   Goal
 
-incident response
+Provide real-time visibility into cluster and workload health using Azure-native dashboards.
 
-post-mortem analysis
+Implementation
 
-Notes
-Application correctness is secondary; real runtime errors were intentionally used to demonstrate observability.
+Metrics Source: AKS Insights (Azure Monitor)
 
-No application code changes were required to enable logging; standard stdout logging was sufficient.
+Dashboards: Azure Portal → AKS → Insights
 
-This setup reflects common enterprise AKS monitoring patterns and production debugging workflows.
+Autoscaling: Horizontal Pod Autoscaler (HPA)
 
-livecodeserver
-Copy code
+HPA Configuration (Backend)
 
----
+Min replicas: 2
 
-# Observability – Metrics + Dashboard (AKS Insights)
+Max replicas: 6
 
-## Scope
-This project demonstrates metrics collection and dashboard visualization using **Azure Monitor / AKS Insights** (Azure-native).
-Grafana is not required for the assignment; AKS Insights provides a production-grade dashboard.
+CPU target: 50%
 
-## Components
-- **AKS:** `aks-smartinv-dev`
-- **Dashboard:** Azure Portal → AKS → **Insights**
-- **Autoscaling:** HPA on `smartinv-backend` (CPU target 50%, min=2, max=6)
+Validation (Autoscaling Proof)
 
-## Validation
-A synthetic load test was executed against the backend `/burn` endpoint to drive CPU usage and trigger HPA scaling.
+CPU load was generated using the backend /burn endpoint.
 
-### Load generation (PowerShell)
-```bash
 kubectl run loadgen --image=busybox --restart=Never --command -- sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
-kubectl run loadgen2 --image=busybox --restart=Never --command -- sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
-kubectl run loadgen3 --image=busybox --restart=Never --command -- sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
-kubectl run loadgen4 --image=busybox --restart=Never --command -- sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
-kubectl run loadgen5 --image=busybox --restart=Never --command -- sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
 
-````
+Observed Behavior
+
+CPU utilization increased
+
+HPA scaled backend replicas from 2 → 6
+
+Replicas scaled down after load stopped (stabilization window)
+
+This confirms metrics ingestion, visualization, and autoscaling behavior.
+
+3. Alerts – Failures & Downtime
+   Goal
+
+Automatically notify operators when failures or service downtime occur.
+
+3.1 Log-Based Alert (Failures)
+
+A scheduled query alert monitors backend logs in Log Analytics.
+
+Signal source: ContainerLogV2
+Examples monitored:
+
+MongoError
+
+Unhandled
+
+CrashLoopBackOff
+
+ImagePullBackOff
+
+Node.js Warning: (used to validate alert triggering)
+
+The alert triggers when matching log entries occur within a 10-minute window.
+
+3.2 Metric-Based Alert (Downtime)
+
+Downtime is detected using Kubernetes metrics instead of logs.
+
+Metric: kube_deployment_status_replicas_available
+
+Target: smartinv-frontend
+
+Condition: Available replicas < 1
+
+This provides a deterministic and production-grade downtime signal.
+
+4. Secrets Management
+   Goal
+
+Prevent hardcoding of sensitive configuration.
+
+Implemented Secrets
+Database Connection
+
+MONGODB_URI
+
+Stored in Kubernetes Secret: smartinv-secrets
+
+Injected into backend container via environment variable
+
+JWT Signing Key
+
+SECRET_OR_KEY
+
+Stored in Kubernetes Secret: smartinv-jwt
+
+Injected into backend container via environment variable
+
+No credentials are stored in source code or deployment manifests.
+
+Summary
+
+✔ Centralized logging with Log Analytics
+
+✔ Metrics and dashboards with AKS Insights
+
+✔ Autoscaling visibility with HPA
+
+✔ Alerts for failures and downtime
+
+✔ Secure secrets management (DB + JWT)
+
+This setup reflects common enterprise AKS operational patterns and demonstrates real-world DevOps observability practices.
