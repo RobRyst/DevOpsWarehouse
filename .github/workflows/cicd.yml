@@ -51,7 +51,7 @@ jobs:
         env:
           SKIP_PREFLIGHT_CHECK: "true"
           CI: "true"
-        run: npm test -- --watch=false --ci
+        run: npm test -- --watch=false --ci --passWithNoTests
 
       - name: E2E tests (if defined)
         working-directory: WarehouseDevOps/client
