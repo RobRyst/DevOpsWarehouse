@@ -3,9 +3,9 @@
 A complete DevOps pipeline and production-grade runtime platform for a fictional inventory management system (SmartInventory).
 The application itself is intentionally simple; the project’s focus is DevOps practices, automation, infrastructure, and operations.
 
-Built to demonstrate modern CI/CD, containerization, Infrastructure as Code, observability, and secure secret management across multiple environments.
+Built to demonstrate modern CI/CD, containerization, Infrastructure as Code, observability, and secure secret management.
 
-📌 Project Overview
+## 📌 Project Overview
 
 SmartInventory DevOps delivers a fully automated delivery and operations platform for a multi-tier web system consisting of:
 
@@ -32,13 +32,13 @@ The project implements:
 🚀 Tech Stack
 ⚙️ Application Stack
 
-React – Frontend web application
+## 📱 React – Frontend web application
 
 ASP.NET Core – Backend REST API
 
 SQL Database – Persistent data storage
 
-🐳 Containerization
+## 🐳 Containerization
 
 Docker – Container images for frontend and backend
 
@@ -46,15 +46,21 @@ Docker Compose – Local development environment
 
 Multi-stage builds – Optimized, minimal production images
 
-🔁 CI/CD
+## 🔁 CI/CD
 
 GitHub Actions – End-to-end pipeline automation
 
 Automated build, test, scan, and deployment stages
 
-Environment separation: Development, Staging, Production
+Environment separation:
 
-🏗️ Infrastructure & Cloud
+Development
+
+Staging
+
+Production
+
+## 🏗️ Infrastructure & Cloud
 
 Terraform – Infrastructure as Code
 
@@ -72,7 +78,7 @@ Health checks & status endpoints
 
 Azure Key Vault / Kubernetes Secrets
 
-✨ Features
+##✨ Features
 🔁 CI/CD Pipeline
 
 Automatic pipeline execution on merge to main
@@ -174,50 +180,47 @@ Infrastructure fully defined and versioned via Terraform
 (Architecture diagram included in repository documentation)
 
 🧠 What I Learned
-
-Building SmartInventory DevOps significantly strengthened my practical DevOps skill set and understanding of modern cloud operations:
-
 CI/CD Automation
 
-Designed robust pipelines that automate build, test, security scanning, and deployment.
+Designed robust pipelines that automate build, test, security scanning, and deployment
 
-Implemented environment separation and approval-gated production releases.
+Implemented environment separation and approval-gated production releases
 
 Containerization & Deployment
 
-Gained hands-on experience building optimized Docker images and managing multi-service systems with Docker Compose and Kubernetes.
+Built optimized Docker images and managed multi-service systems with Docker Compose and Kubernetes
 
-Learned how consistent container artifacts simplify promotion between environments.
+Learned how consistent container artifacts simplify promotion between environments
 
 Infrastructure as Code
 
-Used Terraform to provision and manage cloud infrastructure in a reproducible, version-controlled way.
+Provisioned and managed cloud infrastructure using Terraform in a reproducible, version-controlled manner
 
-Developed a deeper understanding of networking, compute, and managed services in Azure.
+Gained deeper understanding of networking, compute, and managed services in Azure
 
 Kubernetes Operations
 
-Worked with rolling deployments, autoscaling, health probes, and service exposure.
+Worked with rolling deployments, autoscaling, health probes, and service exposure
 
-Learned how Kubernetes supports resilience and scalability in production systems.
+Learned how Kubernetes supports resilience and scalability in production systems
 
 Observability & Reliability
 
-Implemented logging, metrics, dashboards, and alerts to detect and diagnose failures.
+Implemented logging, metrics, dashboards, and alerts to detect and diagnose failures
 
-Understood the importance of visibility and monitoring for operating systems in production.
+Understood the importance of visibility for operating production systems
 
 Security & Secrets Management
 
-Applied best practices for secret handling using managed secret stores.
+Applied best practices for secret handling using managed secret stores
 
-Ensured sensitive configuration is never exposed in code or pipelines.
+Ensured sensitive configuration is never exposed in code or pipelines
 
 DevOps Mindset
 
-Focused on automation, repeatability, and reliability rather than manual processes.
+Focused on automation, repeatability, and reliability over manual processes
 
-Treated infrastructure and pipelines as first-class, versioned assets.
+Treated infrastructure and pipelines as first-class, versioned assets
 
 📄 Documentation Included
 
