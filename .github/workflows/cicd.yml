@@ -48,6 +48,9 @@ jobs:
 
       - name: Test frontend (unit)
         working-directory: WarehouseDevOps/client
+        env:
+          SKIP_PREFLIGHT_CHECK: "true"
+          CI: "true"
         run: npm test -- --watch=false --ci
 
       - name: E2E tests (if defined)
