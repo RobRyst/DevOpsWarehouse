@@ -1,4 +1,4 @@
-🏭 SmartInventory DevOps – End-to-End CI/CD & Cloud Platform
+### 🏭 SmartInventory DevOps – End-to-End CI/CD & Cloud Platform
 
 A complete DevOps pipeline and production-grade runtime platform for a fictional inventory management system (SmartInventory).
 The application itself is intentionally simple; the project’s focus is DevOps practices, automation, infrastructure, and operations.
