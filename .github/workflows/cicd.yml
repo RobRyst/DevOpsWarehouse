@@ -87,8 +87,12 @@ jobs:
 
       - name: Build frontend
         working-directory: WarehouseDevOps/client
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+          SKIP_PREFLIGHT_CHECK: "true"
+          CI: "true"
         run: |
-          npm install --legacy-peer-deps
+          npm ci
           npm run build
 
       - name: Build backend
