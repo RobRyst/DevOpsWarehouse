@@ -134,7 +134,7 @@ jobs:
           NODE_OPTIONS: --openssl-legacy-provider
           SKIP_PREFLIGHT_CHECK: "true"
           DISABLE_ESLINT_PLUGIN: "true"
-          CI: "false"
+          CI: "true"
         run: |
           npm ci
           npm run build
