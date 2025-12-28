@@ -30,7 +30,6 @@ Pipeline-steg:
 - Logs i Log Analytics
 
 Metrics i AKS Insights
-
 Strukturen er kompatibel med GitHub Actions eller Azure DevOps Pipelines.
 
 Hvordan drifte systemet: 
