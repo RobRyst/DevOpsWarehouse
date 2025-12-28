@@ -91,7 +91,7 @@ kubectl top pods
 <img width="1817" height="467" alt="image" src="https://github.com/user-attachments/assets/44d2424f-30de-40d0-8496-1d36a69f6298" />
 
 ### Ressursgruppe: 
-<img width="1191" height="307" alt="image" src="https://github.com/user-attachments/assets/5b3c4ac1-3ff0-40c8-a298-8dbe11ad62a9" />
+<img width="1191" height="308" alt="image" src="https://github.com/user-attachments/assets/62a9ffdf-e2c9-41ac-a104-dccff889286c" />
 
 ### Docker build: 
 <img width="1047" height="622" alt="image" src="https://github.com/user-attachments/assets/1a35b087-436d-4b22-b881-6078655d98e0" />
