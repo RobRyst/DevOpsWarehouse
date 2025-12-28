@@ -81,26 +81,26 @@ kubectl top pods
 
 ## Skjermbilder (dashboards, alerts, pipelines)
 
-# Architecture Diagram: 
+### Architecture Diagram: 
 ![ArchDiagram](https://github.com/user-attachments/assets/e30c74a3-911d-4b08-a01e-f701b2191c63)
 
-# Dashboard: 
+### Dashboard: 
 <img width="1130" height="557" alt="image" src="https://github.com/user-attachments/assets/672a85a0-7743-4a82-9a92-bf1536d72c8c" />
 
-# Alerts: 
+### Alerts: 
 <img width="1817" height="467" alt="image" src="https://github.com/user-attachments/assets/44d2424f-30de-40d0-8496-1d36a69f6298" />
 
-# Ressursgruppe: 
+### Ressursgruppe: 
 <img width="1191" height="307" alt="image" src="https://github.com/user-attachments/assets/5b3c4ac1-3ff0-40c8-a298-8dbe11ad62a9" />
 
-# Docker build: 
+### Docker build: 
 <img width="1047" height="622" alt="image" src="https://github.com/user-attachments/assets/1a35b087-436d-4b22-b881-6078655d98e0" />
 <img width="961" height="730" alt="image" src="https://github.com/user-attachments/assets/45dae7f8-2c7d-44f9-9679-dfe00635558b" />
 
-# Kjørende pods og image: 
+### Kjørende pods og image: 
 <img width="1255" height="188" alt="image" src="https://github.com/user-attachments/assets/ab233a5e-51c6-411b-bcba-ddc706dd0a05" />
 
-# HPA scaling: 
+### HPA scaling: 
 <img width="776" height="140" alt="image" src="https://github.com/user-attachments/assets/ca64b6bc-08e1-40f2-ab40-49a018202f1f" />
 
 ### Kommandoer for lokal kjøring og test:
