@@ -113,10 +113,15 @@ Alt kan gjenopprettes via Terraform på ~15–30 minutter.
 
 Oppsummering
 ✔ Infrastructure as Code
+
 ✔ Kubernetes produksjonsmiljø
+
 ✔ Rolling deploy + autoskalering
+
 ✔ Observability (logs, metrics, alerts)
+
 ✔ Secrets management
+
 ✔ Kostnadsbevisst drift
 
 Dette prosjektet representerer et realistisk DevOps-oppsett slik det brukes i praksis.
