@@ -111,7 +111,8 @@ az group delete -n rg-smartinv-dev --yes --no-wait
 
 Alt kan gjenopprettes via Terraform på ~15–30 minutter.
 
-Oppsummering
+Oppsummering:
+
 ✔ Infrastructure as Code
 
 ✔ Kubernetes produksjonsmiljø
