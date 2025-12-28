@@ -13,29 +13,29 @@ Viktige komponenter:
 Beskrivelse av pipelines
 Dette prosjektet bruker en manuell CI/CD-flyt (lokal build + deploy), men er strukturert slik at den enkelt kan automatiseres.
 
-Pipeline-steg:
+# Pipeline-steg:
 
-# 1. Bygg Docker-images
+## 1. Bygg Docker-images
 - Backend (Node.js)
 - Frontend (React → Nginx)
 
-# 2. Push images til Azure Container Registry (ACR)
+## 2. Push images til Azure Container Registry (ACR)
 
-# 3. Deploy til AKS
+## 3. Deploy til AKS
 - kubectl apply
 - Rolling update uten nedetid
 
-# 4. Valider
+## 4. Valider
 - Health checks (/health)
 - Logs i Log Analytics
 
-Metrics i AKS Insights
+## Metrics i AKS Insights
 
 Strukturen er kompatibel med GitHub Actions eller Azure DevOps Pipelines.
 
-Hvordan drifte systemet: 
+## Hvordan drifte systemet: 
 
-Deployment: 
+### Deployment: 
 
 kubectl apply -f Kubernetes/
 
@@ -43,13 +43,13 @@ kubectl rollout status deployment/smartinv-backend
 
 kubectl rollout status deployment/smartinv-frontend
 
-Rollback
+### Rollback
 
 Rull tilbake til forrige fungerende versjon:
 
 kubectl rollout undo deployment/smartinv-backend
 
-Sjekk status:
+### Sjekk status:
 
 kubectl rollout status deployment/smartinv-backend
 
@@ -61,11 +61,11 @@ kubectl get pods
 
 kubectl describe pod <pod-navn>
 
-Se logger:
+### Se logger:
 
 kubectl logs -l app=smartinv-backend
 
-Sentralisert logging:
+### Sentralisert logging:
 
 Azure Portal → Log Analytics → Logs
 
@@ -75,15 +75,15 @@ ContainerLogV2
 
 | order by TimeGenerated desc
 
-Metrics og autoskalering:
+### Metrics og autoskalering:
 
 kubectl get hpa
 
 kubectl top pods
 
-Skjermbilder (dashboards, alerts, pipelines)
+## Skjermbilder (dashboards, alerts, pipelines)
 
-Kommandoer for lokal kjøring og test:
+### Kommandoer for lokal kjøring og test:
 
 docker compose up --build
 
@@ -95,23 +95,23 @@ Backend:
 
 http://localhost:5000/health
 
-Kubernetes load-test (HPA-verifisering):
+### Kubernetes load-test (HPA-verifisering):
 
 kubectl run loadgen --image=busybox --restart=Never --command -- \
 
 sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
 
-Se autoskalering:
+### Se autoskalering:
 
 kubectl get hpa -w
 
 kubectl get pods
 
-Rydd opp:
+### Rydd opp:
 
 kubectl delete pod loadgen
 
-Secrets Management:
+## Secrets Management:
 
 Sensitive verdier er lagret i Kubernetes Secrets og aldri hardkodet.
 
@@ -128,7 +128,7 @@ JWT-signeringsnøkkel (SECRET_OR_KEY)
 
 Infrastructure as Code
 
-All infrastruktur provisioneres med Terraform:
+### All infrastruktur provisioneres med Terraform:
 
 - AKS
 - VNet / Subnet / NSG
@@ -137,13 +137,13 @@ All infrastruktur provisioneres med Terraform:
 - Remote state i Azure Storage
 - Miljøet kan trygt slettes og gjenopprettes.
 
-Kostnadshåndtering
+## Kostnadshåndtering
 Når prosjektet ikke er i bruk:
 az group delete -n rg-smartinv-dev --yes --no-wait
 
 Alt kan gjenopprettes via Terraform på ~15–30 minutter.
 
-Oppsummering:
+## Oppsummering:
 
 ✔ Infrastructure as Code
 
