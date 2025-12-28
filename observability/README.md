@@ -2,7 +2,7 @@
 
 Dette prosjektet demonstrerer DevOps og driftskompetanse ved å sette opp, drifte og overvåke en containerbasert applikasjon i Azure. Fokus er på Infrastructure as Code, Kubernetes drift, observability, secrets management og kostnadskontroll. Applikasjonens funksjonalitet er sekundær; operasjonell stabilitet og synlighet er hovedmålet.
 
-Viktige komponenter
+Viktige komponenter:
 
 - AKS: Produksjonsmiljø med rolling deploy og autoskalering
 - Cosmos DB (Mongo API): Database
@@ -15,84 +15,116 @@ Dette prosjektet bruker en manuell CI/CD-flyt (lokal build + deploy), men er str
 
 Pipeline-steg:
 
-1. Bygg Docker-images
+# 1. Bygg Docker-images
 - Backend (Node.js)
 - Frontend (React → Nginx)
 
-2. Push images til Azure Container Registry (ACR)
+# 2. Push images til Azure Container Registry (ACR)
 
-3. Deploy til AKS
+# 3. Deploy til AKS
 - kubectl apply
 - Rolling update uten nedetid
 
-4. Valider
+# 4. Valider
 - Health checks (/health)
 - Logs i Log Analytics
 
 Metrics i AKS Insights
+
 Strukturen er kompatibel med GitHub Actions eller Azure DevOps Pipelines.
 
 Hvordan drifte systemet: 
 
 Deployment: 
+
 kubectl apply -f Kubernetes/
+
 kubectl rollout status deployment/smartinv-backend
+
 kubectl rollout status deployment/smartinv-frontend
 
 Rollback
+
 Rull tilbake til forrige fungerende versjon:
+
 kubectl rollout undo deployment/smartinv-backend
 
 Sjekk status:
+
 kubectl rollout status deployment/smartinv-backend
 
 Feilsøking:
+
 Sjekk pods:
+
 kubectl get pods
+
 kubectl describe pod <pod-navn>
 
 Se logger:
+
 kubectl logs -l app=smartinv-backend
 
 Sentralisert logging:
+
 Azure Portal → Log Analytics → Logs
+
 ContainerLogV2
+
 | where PodName startswith "smartinv-backend"
+
 | order by TimeGenerated desc
 
 Metrics og autoskalering:
+
 kubectl get hpa
+
 kubectl top pods
 
 Skjermbilder (dashboards, alerts, pipelines)
 
-
 Kommandoer for lokal kjøring og test:
+
 docker compose up --build
 
 Frontend:
+
 http://localhost:3000
 
 Backend:
+
 http://localhost:5000/health
 
 Kubernetes load-test (HPA-verifisering):
+
 kubectl run loadgen --image=busybox --restart=Never --command -- \
+
 sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
 
 Se autoskalering:
+
 kubectl get hpa -w
+
 kubectl get pods
 
 Rydd opp:
+
 kubectl delete pod loadgen
 
-Secrets Management
+Secrets Management:
+
 Sensitive verdier er lagret i Kubernetes Secrets og aldri hardkodet.
 
-Secret	                     Bruk
-smartinv-secrets	            Database-tilkobling (MONGODB_URI)
-smartinv-jwt	               JWT-signeringsnøkkel (SECRET_OR_KEY)
+Secret 
+
+smartinv-secrets
+smartinv-jwt
+
+Bruk
+
+Database-tilkobling (MONGODB_URI) smartinv-jwt	               
+
+JWT-signeringsnøkkel (SECRET_OR_KEY)
 
 Infrastructure as Code
 
