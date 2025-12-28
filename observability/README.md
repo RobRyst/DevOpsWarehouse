@@ -1,187 +1,123 @@
-SmartInventory – DevOps & Observability (AKS)
+![ArchDiagram](https://github.com/user-attachments/assets/e30c74a3-911d-4b08-a01e-f701b2191c63)
 
-This project demonstrates DevOps and Kubernetes operational competence using Azure Kubernetes Service (AKS).
-Application correctness is secondary; infrastructure, deployment strategy, observability, and operational behavior are the focus.
+Dette prosjektet demonstrerer DevOps og driftskompetanse ved å sette opp, drifte og overvåke en containerbasert applikasjon i Azure. Fokus er på Infrastructure as Code, Kubernetes drift, observability, secrets management og kostnadskontroll. Applikasjonens funksjonalitet er sekundær; operasjonell stabilitet og synlighet er hovedmålet.
 
-Observability
+Viktige komponenter
 
-The project implements three core observability pillars:
+- AKS: Produksjonsmiljø med rolling deploy og autoskalering
+- Cosmos DB (Mongo API): Database
+- Azure Monitor / Log Analytics: Logging, metrics og alerts
+- Terraform: Full IaC-provisionering
+- Kubernetes Secrets: Håndtering av sensitive verdier
 
-Centralized logging
+Beskrivelse av pipelines
+Dette prosjektet bruker en manuell CI/CD-flyt (lokal build + deploy), men er strukturert slik at den enkelt kan automatiseres.
 
-Metrics & dashboards
+Pipeline-steg:
 
-Alerts for failures and downtime
+1. Bygg Docker-images
+- Backend (Node.js)
+- Frontend (React → Nginx)
 
-All observability components use Azure-native tooling.
+2. Push images til Azure Container Registry (ACR)
 
-1. Centralized Logging (AKS → Log Analytics)
-   Goal
+3. Deploy til AKS
+- kubectl apply
+- Rolling update uten nedetid
 
-Aggregate logs from all containers and replicas into a single, searchable location to support troubleshooting during rolling deployments and autoscaling.
+4. Valider
+- Health checks (/health)
+- Logs i Log Analytics
 
-Implementation
+Metrics i AKS Insights
 
-Platform: Azure Kubernetes Service (AKS)
+Strukturen er kompatibel med GitHub Actions eller Azure DevOps Pipelines.
 
-Logging: AKS Container Insights
+Hvordan drifte systemet: 
 
-Workspace: law-smartinv-dev
+Deployment: 
+kubectl apply -f Kubernetes/
+kubectl rollout status deployment/smartinv-backend
+kubectl rollout status deployment/smartinv-frontend
 
-Cluster: aks-smartinv-dev
+Rollback
+Rull tilbake til forrige fungerende versjon:
+kubectl rollout undo deployment/smartinv-backend
 
-Resource Group: rg-smartinv-dev
+Sjekk status:
+kubectl rollout status deployment/smartinv-backend
 
-Log Table: ContainerLogV2
+Feilsøking:
+Sjekk pods:
+kubectl get pods
+kubectl describe pod <pod-navn>
 
-Azure Monitor Agent (AMA) runs in the kube-system namespace and forwards container stdout/stderr logs automatically.
+Se logger:
+kubectl logs -l app=smartinv-backend
 
-What Is Collected
-
-Application logs from all backend and frontend containers
-
-Logs across all replicas
-
-Kubernetes metadata (namespace, pod name, container name)
-
-Pod lifecycle events (startup, restart, crash)
-
-Verification
-
-Centralized logging was verified during a real backend failure:
-
-Backend pods emitted MongoError: Invalid key
-
-One replica entered CrashLoopBackOff
-
-Logs were visible centrally in Log Analytics without using kubectl logs
-
-Example Diagnostic Queries
+Sentralisert logging:
+Azure Portal → Log Analytics → Logs
 ContainerLogV2
 | where PodName startswith "smartinv-backend"
-| project TimeGenerated, PodName, ContainerName, LogMessage
 | order by TimeGenerated desc
 
-ContainerLogV2
-| where PodName startswith "smartinv-backend"
-| where LogMessage has "MongoError"
-| order by TimeGenerated desc
+Metrics og autoskalering:
+kubectl get hpa
+kubectl top pods
 
-Operational Value
+Skjermbilder (dashboards, alerts, pipelines)
 
-Troubleshooting without pod-level access
 
-Works with rolling deployments and autoscaling
+Kommandoer for lokal kjøring og test:
+docker compose up --build
 
-Enables root-cause analysis across replicas
+Frontend:
+http://localhost:3000
 
-2. Metrics & Dashboards (Azure Monitor / AKS Insights)
-   Goal
+Backend:
+http://localhost:5000/health
 
-Provide real-time visibility into cluster and workload health using Azure-native dashboards.
+Kubernetes load-test (HPA-verifisering):
+kubectl run loadgen --image=busybox --restart=Never --command -- \
+sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
 
-Implementation
+Se autoskalering:
+kubectl get hpa -w
+kubectl get pods
 
-Metrics Source: AKS Insights (Azure Monitor)
+Rydd opp:
+kubectl delete pod loadgen
 
-Dashboards: Azure Portal → AKS → Insights
+Secrets Management
+Sensitive verdier er lagret i Kubernetes Secrets og aldri hardkodet.
 
-Autoscaling: Horizontal Pod Autoscaler (HPA)
+Secret	                     Bruk
+smartinv-secrets	            Database-tilkobling (MONGODB_URI)
+smartinv-jwt	               JWT-signeringsnøkkel (SECRET_OR_KEY)
 
-HPA Configuration (Backend)
+Infrastructure as Code
 
-Min replicas: 2
+All infrastruktur provisioneres med Terraform:
 
-Max replicas: 6
+- AKS
+- VNet / Subnet / NSG
+- Cosmos DB
+- Log Analytics
+- Remote state i Azure Storage
+- Miljøet kan trygt slettes og gjenopprettes.
 
-CPU target: 50%
+Kostnadshåndtering
+Når prosjektet ikke er i bruk:
+az group delete -n rg-smartinv-dev --yes --no-wait
 
-Validation (Autoscaling Proof)
+Alt kan gjenopprettes via Terraform på ~15–30 minutter.
 
-CPU load was generated using the backend /burn endpoint.
+Oppsummering
+✔ Infrastructure as Code
+✔ Kubernetes produksjonsmiljø
+✔ Rolling deploy + autoskalering
+✔ Observability (logs, metrics, alerts)
+✔ Secrets management
+✔ Kostnadsbevisst drift
 
-kubectl run loadgen --image=busybox --restart=Never --command -- sh -c "while true; do wget -q -O- http://smartinv-backend:5000/burn >/dev/null; done"
-
-Observed Behavior
-
-CPU utilization increased
-
-HPA scaled backend replicas from 2 → 6
-
-Replicas scaled down after load stopped (stabilization window)
-
-This confirms metrics ingestion, visualization, and autoscaling behavior.
-
-3. Alerts – Failures & Downtime
-   Goal
-
-Automatically notify operators when failures or service downtime occur.
-
-3.1 Log-Based Alert (Failures)
-
-A scheduled query alert monitors backend logs in Log Analytics.
-
-Signal source: ContainerLogV2
-Examples monitored:
-
-MongoError
-
-Unhandled
-
-CrashLoopBackOff
-
-ImagePullBackOff
-
-Node.js Warning: (used to validate alert triggering)
-
-The alert triggers when matching log entries occur within a 10-minute window.
-
-3.2 Metric-Based Alert (Downtime)
-
-Downtime is detected using Kubernetes metrics instead of logs.
-
-Metric: kube_deployment_status_replicas_available
-
-Target: smartinv-frontend
-
-Condition: Available replicas < 1
-
-This provides a deterministic and production-grade downtime signal.
-
-4. Secrets Management
-   Goal
-
-Prevent hardcoding of sensitive configuration.
-
-Implemented Secrets
-Database Connection
-
-MONGODB_URI
-
-Stored in Kubernetes Secret: smartinv-secrets
-
-Injected into backend container via environment variable
-
-JWT Signing Key
-
-SECRET_OR_KEY
-
-Stored in Kubernetes Secret: smartinv-jwt
-
-Injected into backend container via environment variable
-
-No credentials are stored in source code or deployment manifests.
-
-Summary
-
-✔ Centralized logging with Log Analytics
-
-✔ Metrics and dashboards with AKS Insights
-
-✔ Autoscaling visibility with HPA
-
-✔ Alerts for failures and downtime
-
-✔ Secure secrets management (DB + JWT)
-
-This setup reflects common enterprise AKS operational patterns and demonstrates real-world DevOps observability practices.
+Dette prosjektet representerer et realistisk DevOps-oppsett slik det brukes i praksis.
