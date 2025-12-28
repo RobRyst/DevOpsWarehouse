@@ -115,18 +115,18 @@ kubectl delete pod loadgen
 
 Sensitive verdier er lagret i Kubernetes Secrets og aldri hardkodet.
 
-Secret 
+### Secret 
 
-smartinv-secrets
-smartinv-jwt
+- smartinv-secrets
+- smartinv-jwt
 
-Bruk
+### Bruk
 
 Database-tilkobling (MONGODB_URI) smartinv-jwt	               
 
 JWT-signeringsnøkkel (SECRET_OR_KEY)
 
-Infrastructure as Code
+## Infrastructure as Code
 
 ### All infrastruktur provisioneres med Terraform:
 
